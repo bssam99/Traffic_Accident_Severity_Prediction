@@ -11,6 +11,11 @@ Traffic accidents are a serious public safety issue in urban environments. This 
 Several classical machine learning models were implemented, compared, and combined through ensemble learning to maximize predictive performance.
 
 ---
+👥 Contributors
+
+- Bssam Nor 
+- Ahmed Magdi 
+---
 
 ## 📂 Repository Structure
 
