@@ -1,0 +1,12 @@
+# Data (download separately, see README)
+Traffic_Collisions_Open_Data.csv
+train_data.csv
+test_data.csv
+*.csv
+
+.ipynb_checkpoints/
+__pycache__/
+.venv/
+venv/
+.env
+.DS_Store

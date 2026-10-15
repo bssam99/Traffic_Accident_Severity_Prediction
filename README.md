@@ -1,137 +1,73 @@
-# 🚦 Traffic Accident Severity Prediction in Toronto
+# Traffic Accident Severity Prediction
 
-A machine learning project that predicts the severity of traffic accidents in Toronto using historical collision data from the Toronto Police Service Open Data Portal.
+Predicting whether a traffic accident will be **low or high severity** from weather, time of day and road features, using classical ML models and ensembles. Built on a **7.7-million-record** accident dataset.
 
----
+![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)
+![scikit-learn](https://img.shields.io/badge/scikit--learn-F7931E?logo=scikitlearn&logoColor=white)
 
-## 📌 Overview
+> CSAI-801 Machine Learning course project · Contributors: Bssam Nor, Ahmed Magdi
 
-Traffic accidents are a serious public safety issue in urban environments. This project frames accident severity prediction as a **binary classification task** — distinguishing between low-severity and high-severity collisions — using environmental, temporal, and road infrastructure features.
+## Results
 
-Several classical machine learning models were implemented, compared, and combined through ensemble learning to maximize predictive performance.
+Test set: 49,600 accidents (20% stratified hold-out, never used for EDA or tuning).
 
----
-👥 Contributors
+| Model | Accuracy | F1 (weighted) | ROC-AUC |
+|---|---:|---:|---:|
+| **Stacking (RF + GB → LR)** | **75.2%** | **0.752** | **0.834** |
+| Gradient Boosting | 75.2% | 0.751 | 0.834 |
+| Soft Voting | 73.4% | 0.732 | 0.819 |
+| Random Forest | 71.7% | 0.714 | 0.795 |
+| Decision Tree | 69.2% | 0.687 | 0.764 |
+| Logistic Regression | 65.6% | 0.656 | 0.710 |
+| Naive Bayes | 61.2% | 0.606 | 0.680 |
 
-- Bssam Nor 
-- Ahmed Magdi 
----
+Gradient Boosting gets almost the same score as the stacking ensemble while training **12× faster** (3.5 s vs 43 s), which makes it the practical choice.
 
-## 📂 Repository Structure
+**Most important features:** accident duration, affected road distance, traffic signals, crossings, hour of day and month.
 
+## Approach
+
+1. **Split first** – the raw data is cleaned (duplicates, missing values), balanced to 62,000 accidents per severity level (248,000 rows), then split 80/20 *before* any EDA or feature engineering to avoid data leakage.
+2. **Target** – severity levels 1–2 → Low, 3–4 → High (binary classification).
+3. **Features** – weather (temperature, humidity, visibility, wind, precipitation, condition), road features (signals, crossings, junctions, stops…), daylight, and engineered time features (hour, weekday, month, rush hour, night).
+4. **Preprocessing pipeline** – scaling and one-hot encoding fit on the training data only.
+5. **Models** – baselines (Naive Bayes, Logistic Regression, Decision Tree), tuned Random Forest and Gradient Boosting (sensitivity analysis on trees, depth and learning rate), then hard/soft voting and stacking.
+6. **Evaluation** – accuracy, weighted F1, precision, recall, ROC-AUC and confusion-matrix error analysis (missed high-severity accidents vs false alarms).
+
+## Limitations
+
+- Accident duration and affected distance are only known after the accident. A model meant to run at the moment of the accident should drop them and be re-evaluated.
+- The data was balanced by sampling, so real-world precision for the rarer high-severity class will be lower than shown here.
+
+## Project Structure
+
+```text
+├── Traffic_Accident_Severity_Prediction.ipynb   # full pipeline
+├── report/
+│   └── Traffic_Accident_Severity_Prediction_Report.pdf
+├── requirements.txt
+├── LICENSE
+└── README.md
 ```
-├── Traffic_Accident_Severity_Prediction.ipynb   # Main notebook (preprocessing, training, evaluation)
-├── README.md
-└── report/
-    └── Traffic_Accident_Severity_Prediction_Report.pdf
-```
 
----
+## How to Run
 
-## 📊 Dataset
+1. Download the [US Accidents dataset](https://www.kaggle.com/datasets/sobhanmoosavi/us-accidents) from Kaggle and save it next to the notebook as `Traffic_Collisions_Open_Data.csv` (the notebook uses the 33 columns listed in section 2.1).
+2. Install and run:
 
-**Source:** [Toronto Police Service — Motor Vehicle Collisions Open Data](https://data.torontopolice.on.ca/pages/motor-vehicle-collisions)
-
-Features include:
-- **Environmental:** weather conditions, temperature, humidity, visibility, wind speed, precipitation
-- **Road infrastructure:** traffic signals, crossings, junctions, stop signs
-- **Temporal:** hour of day, day of week, month, rush hour & nighttime indicators
-
-Target variable: Binary accident severity (Low / High)
-
----
-
-## ⚙️ Methodology
-
-### 1. Data Preprocessing
-- Handled missing values
-- One-hot encoded categorical variables (weather, lighting conditions)
-- Grouped original severity levels into two binary classes
-
-### 2. Feature Engineering
-Extracted temporal features:
-- Hour of the day
-- Day of the week
-- Month of the year
-- Rush hour indicator
-- Nighttime indicator
-
-### 3. Models Implemented
-
-| Model | Type |
-|---|---|
-| Naive Bayes | Baseline |
-| Logistic Regression | Linear |
-| Decision Tree | Tree-based |
-| Random Forest | Ensemble |
-| Gradient Boosting | Ensemble |
-| Hard Voting | Ensemble |
-| Soft Voting | Ensemble |
-| Stacking (RF + GB → LR) | Ensemble |
-
-### 4. Evaluation
-All models were evaluated using **5-fold cross-validation** with the following metrics:
-- Accuracy
-- Weighted F1-score
-- Precision
-- Recall
-- ROC-AUC
-
----
-
-## 📈 Results
-
-| Model | Accuracy | F1-W | Precision | Recall | ROC-AUC |
-|---|---|---|---|---|---|
-| **Stacking (RF+GB→LR)** | **75.2%** | **0.752** | **0.753** | **0.752** | **0.843** |
-| Gradient Boosting | 75.0% | 0.750 | 0.752 | 0.750 | 0.834 |
-| Soft Voting | 73.4% | 0.733 | 0.741 | 0.734 | 0.819 |
-| Hard Voting | 73.4% | 0.732 | 0.742 | 0.734 | 0.734 |
-| Random Forest | 71.7% | 0.714 | 0.729 | 0.717 | 0.795 |
-| Decision Tree | 69.4% | 0.687 | 0.704 | 0.694 | 0.764 |
-| Logistic Regression | 65.6% | 0.656 | 0.657 | 0.656 | 0.710 |
-| Naive Bayes | 61.2% | 0.606 | 0.612 | 0.612 | 0.688 |
-
-> **Best model:** Stacking ensemble (RF + Gradient Boosting → Logistic Regression) with 75.2% accuracy and 0.843 ROC-AUC.
-
----
-
-## 🔍 Key Findings
-
-Feature importance analysis identified the most influential predictors of accident severity:
-
-- ⏱️ **Accident duration**
-- 📏 **Distance**
-- 🚦 **Traffic signals**
-- 🛤️ **Road crossings**
-- 🕐 **Time of day**
-- 📅 **Month of the year**
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
 ```bash
-pip install pandas numpy scikit-learn matplotlib seaborn
-```
-
-### Run the Notebook
-```bash
+git clone https://github.com/bssam99/Traffic_Accident_Severity_Prediction.git
+cd Traffic_Accident_Severity_Prediction
+pip install -r requirements.txt
 jupyter notebook Traffic_Accident_Severity_Prediction.ipynb
 ```
 
----
+## References
 
-## 📚 References
+- Moosavi et al., *A Countrywide Traffic Accident Dataset*, 2019 – [arXiv:1906.05409](https://arxiv.org/abs/1906.05409)
+- Breiman, *Random Forests*, Machine Learning, 2001
+- Friedman, *Greedy Function Approximation: A Gradient Boosting Machine*, Annals of Statistics, 2001
 
-- Toronto Police Service. [Motor Vehicle Collisions Open Data](https://data.torontopolice.on.ca/pages/motor-vehicle-collisions)
-- Breiman, L. *Random Forests.* Machine Learning Journal, 2001.
-- Chen, T., & Guestrin, C. *XGBoost: A Scalable Tree Boosting System.* KDD 2016.
-- World Health Organization. [Global Status Report on Road Safety](https://www.who.int/publications/i/item/9789241565684)
+## License
 
----
-
-## 📄 License
-
-This project is open-source and available under the [MIT License](LICENSE).
+[MIT](LICENSE)
