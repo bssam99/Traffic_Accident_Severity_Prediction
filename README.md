@@ -5,7 +5,7 @@ Predicting whether a traffic accident will be **low or high severity** from weat
 ![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)
 ![scikit-learn](https://img.shields.io/badge/scikit--learn-F7931E?logo=scikitlearn&logoColor=white)
 
-> CSAI-801 Machine Learning course project · Contributors: Bassam Ahmed, Ahmed Magdi
+> CSAI-801 Machine Learning course project · Contributors: Bassam Osman, Ahmed Magdi
 
 ## Results
 
